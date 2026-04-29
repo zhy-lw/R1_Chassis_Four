@@ -1,6 +1,7 @@
 #include "Task_Init.h"
-#include "JY61.h"
+#include "VL53_100.h"
 #include "encoder.h"
+#include "usart.h"
 
 #include "comm_stm32_hal_middle.h"
 #include "dataFrame.h"
@@ -19,14 +20,17 @@ Chassis_t chassis;
 
 //句柄
 TaskHandle_t Remote_Analysis_Handle;
-TaskHandle_t UartTxTask_Handle;
 TaskHandle_t Uart_Tx_Handle;
+extern TaskHandle_t task_handle;
 
 //遥控器数据
-uint8_t usart4_dma_buff[30];
+uint8_t usart4_dma_buff[60];
 uint8_t usart5_dma_buff[60];
 Remote_Handle_t Remote_Control;
 extern SemaphoreHandle_t Remote_semaphore;
+
+//距离传感器
+extern VL53_Data_t VL_53_data;
 
 //任务
 void Remote_Analysis_Task(void *pvParameters);
@@ -43,16 +47,16 @@ void Task_Init(void)
 	
     wheelArray[0].pos.x =  0.325f;
     wheelArray[0].pos.y =  0.325f; 
-    wheelArray[0].pos.z =  PI;
+    wheelArray[0].pos.z =  - PI / 4.0f;
     wheelArray[1].pos.x =  0.325f;
-    wheelArray[1].pos.y =  -0.325;
-    wheelArray[1].pos.z =  PI;
+    wheelArray[1].pos.y =  -0.325f;
+    wheelArray[1].pos.z =  - PI / 4.0f;
     wheelArray[2].pos.x =  -0.325f;
-    wheelArray[2].pos.y =  -0.325;
-    wheelArray[2].pos.z =  PI;
+    wheelArray[2].pos.y =  -0.325f;
+    wheelArray[2].pos.z =  - PI/ 4.0f;
     wheelArray[3].pos.x =  -0.325f;
-    wheelArray[3].pos.y =   0.325f;
-    wheelArray[3].pos.z =  PI;
+    wheelArray[3].pos.y =  0.325f;
+    wheelArray[3].pos.z =  PI * 3.0 / 4.0f;
 
     for(int i = 0; i < 4; i++)
     {
@@ -134,7 +138,9 @@ void Remote_Analysis_Task(void *pvParameters)
 	}
 }
 
-float v1,v2,v3,v4;
+//float v1,v2,v3,v4;
+float expect_len = 0.0f;
+PID2  One_Four_PID, Two_Three_PID;
 Pack_TransRemote_t pack_t[2];
 void Uart_Tx(void *pvParameters)
 {
@@ -144,6 +150,18 @@ void Uart_Tx(void *pvParameters)
 	
 	pack_t[1].head = 0xAB;
 	pack_t[1].tail = 0xBA;
+	
+	One_Four_PID.Kp = 0.1f;
+	One_Four_PID.Ki = 0.0f;
+	One_Four_PID.Kd = 0.0f;
+	One_Four_PID.limit = 0.0f;
+	One_Four_PID.output_limit = 2.0f;
+	
+	Two_Three_PID.Kp = 0.1f;
+	Two_Three_PID.Ki = 0.0f;
+	Two_Three_PID.Kd = 0.0f;
+	Two_Three_PID.limit = 0.0f;
+	Two_Three_PID.output_limit = 2.0f;
 	
   while(1)
   {
@@ -165,6 +183,21 @@ void Uart_Tx(void *pvParameters)
 		pack_t[1].crc = crc_ccitt(0, (uint8_t *)&pack_t[1], sizeof(Pack_TransRemote_t)-2);
 		HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&pack_t[0], sizeof(Pack_TransRemote_t));
 		HAL_UART_Transmit_DMA(&huart6, (uint8_t *)&pack_t[1], sizeof(Pack_TransRemote_t));
+		
+		if(Remote_Control.First.Right_Key_Up == 1 && Remote_Control.Second.Right_Key_Up == 0)
+		{
+			vTaskSuspend(task_handle);
+			steeringWheelArray[0].expectDirection = -45.0f;
+			steeringWheelArray[3].expectDirection = 135.0f;//向左
+			
+			steeringWheelArray[1].expectDirection = 135.0f;
+			steeringWheelArray[2].expectDirection = 135.0f;//向右
+		}
+		
+		if(Remote_Control.First.Left_Key_Up == 1 && Remote_Control.Second.Left_Key_Up == 0)
+		{
+			vTaskResume(task_handle);
+		}
 		
 		vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(20));
   }

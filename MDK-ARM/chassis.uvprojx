@@ -313,7 +313,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>0</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -885,6 +885,16 @@
               <FileName>crc_ccitt.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\BaseLib\crc_ccitt.h</FilePath>
+            </File>
+            <File>
+              <FileName>VL53_100.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BaseLib\VL53_100.c</FilePath>
+            </File>
+            <File>
+              <FileName>VL53_100.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\BaseLib\VL53_100.h</FilePath>
             </File>
           </Files>
         </Group>
