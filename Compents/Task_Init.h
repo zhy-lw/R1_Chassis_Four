@@ -56,13 +56,13 @@ typedef struct
 } Pack_TransRemote_t;
 #pragma pack()
 
-typedef struct
-{
-    UART_HandleTypeDef *huart;
-    uint16_t len;
-    uint8_t data[32];   // 你的结构体大约 1+8+8+1=18字节，32足够
-} UartTxMsg_t;
-
-void Send_Remote_Data(UART_HandleTypeDef *huart,float dir_one, float dir_two,float vel_one, float vel_two);
+#pragma pack(1)
+typedef struct {
+    uint16_t spi1;
+    uint16_t spi2;
+    uint16_t spi3;
+    uint16_t adc;
+} LASER_SEND_Typedef;   //激光句柄
+#pragma pack()
 
 #endif

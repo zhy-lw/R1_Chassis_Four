@@ -30,7 +30,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 extern uint8_t usart4_dma_buff[60];
-VL53_Data_t VL_53_data;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -386,7 +385,6 @@ void UART4_IRQHandler(void)
   /* USER CODE BEGIN UART4_IRQn 0 */
 	HAL_UART_DMAStop(&huart4);
 	HAL_UART_Receive_DMA(&huart4, usart4_dma_buff, sizeof(usart4_dma_buff));
-	VL53_100_DataProcess(usart4_dma_buff, &VL_53_data);
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */

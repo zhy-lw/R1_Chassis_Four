@@ -30,11 +30,13 @@ Remote_Handle_t Remote_Control;
 extern SemaphoreHandle_t Remote_semaphore;
 
 //距离传感器
-extern VL53_Data_t VL_53_data;
+LASER_SEND_Typedef DT_35_Len;
 
 //任务
 void Remote_Analysis_Task(void *pvParameters);
 void Uart_Tx(void *pvParameters);
+
+ChassisMode Mode = REMOTE;
 
 void Task_Init(void)
 {
@@ -138,8 +140,7 @@ void Remote_Analysis_Task(void *pvParameters)
 	}
 }
 
-//float v1,v2,v3,v4;
-float expect_len = 0.0f;
+float expect_len = 217.0f;
 PID2  One_Four_PID, Two_Three_PID;
 Pack_TransRemote_t pack_t[2];
 void Uart_Tx(void *pvParameters)
@@ -151,17 +152,17 @@ void Uart_Tx(void *pvParameters)
 	pack_t[1].head = 0xAB;
 	pack_t[1].tail = 0xBA;
 	
-	One_Four_PID.Kp = 0.1f;
+	One_Four_PID.Kp = 0.001f;
 	One_Four_PID.Ki = 0.0f;
 	One_Four_PID.Kd = 0.0f;
-	One_Four_PID.limit = 0.0f;
-	One_Four_PID.output_limit = 2.0f;
+	One_Four_PID.limit = 10.0f;
+	One_Four_PID.output_limit = 0.2f;
 	
-	Two_Three_PID.Kp = 0.1f;
+	Two_Three_PID.Kp = 0.005f;
 	Two_Three_PID.Ki = 0.0f;
 	Two_Three_PID.Kd = 0.0f;
-	Two_Three_PID.limit = 0.0f;
-	Two_Three_PID.output_limit = 2.0f;
+	Two_Three_PID.limit = 10.0f;
+	Two_Three_PID.output_limit = 0.5f;
 	
   while(1)
   {
@@ -186,21 +187,69 @@ void Uart_Tx(void *pvParameters)
 		
 		if(Remote_Control.First.Right_Key_Up == 1 && Remote_Control.Second.Right_Key_Up == 0)
 		{
-			vTaskSuspend(task_handle);
 			steeringWheelArray[0].expectDirection = -45.0f;
 			steeringWheelArray[3].expectDirection = 135.0f;//向左
 			
 			steeringWheelArray[1].expectDirection = 135.0f;
 			steeringWheelArray[2].expectDirection = 135.0f;//向右
+			Mode = AUTO;
+			expect_len = 500;
+			vTaskSuspend(task_handle);
+		}
+		
+		if(Remote_Control.First.Right_Key_Down == 1 && Remote_Control.Second.Right_Key_Down == 0)
+		{
+			steeringWheelArray[0].expectDirection = -45.0f;
+			steeringWheelArray[3].expectDirection = 135.0f;//向左
+			
+			steeringWheelArray[1].expectDirection = 135.0f;
+			steeringWheelArray[2].expectDirection = 135.0f;//向右
+			Mode = AUTO;
+			expect_len = 220;
+			vTaskSuspend(task_handle);
 		}
 		
 		if(Remote_Control.First.Left_Key_Up == 1 && Remote_Control.Second.Left_Key_Up == 0)
 		{
+			Mode = REMOTE;
 			vTaskResume(task_handle);
+		}
+		
+		if(Mode == REMOTE)
+		{
+			wheelArray[0].pos.x =  0.325f;
+			wheelArray[0].pos.y =  0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f;
+			
+			wheelArray[1].pos.x =  0.325f;
+			wheelArray[1].pos.y =  -(0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f);
+			
+			wheelArray[2].pos.x =  -0.325f;
+			wheelArray[2].pos.y =  -(0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f);
+
+			wheelArray[3].pos.x =  -0.325f;
+			wheelArray[3].pos.y =  0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f;
+		}
+		
+		if(Mode == AUTO)
+		{
+			PID_Control2(DT_35_Len.spi2, expect_len, &One_Four_PID);
+			PID_Control2(DT_35_Len.spi2, expect_len, &Two_Three_PID);
+			steeringWheelArray[0].expextVelocity = One_Four_PID.pid_out;
+			steeringWheelArray[3].expextVelocity = One_Four_PID.pid_out;
+			
+			steeringWheelArray[1].expextVelocity = Two_Three_PID.pid_out;
+			steeringWheelArray[2].expextVelocity = Two_Three_PID.pid_out;
 		}
 		
 		vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(20));
   }
+}
+
+void CAN_Laser_ReceiveHandler(LASER_SEND_Typedef *laser_data, uint8_t *buf) {
+	laser_data->spi1 = (uint16_t)(buf[0] | (buf[1] << 8));
+	laser_data->spi2 = (uint16_t)(buf[2] | (buf[3] << 8));
+	laser_data->spi3 = (uint16_t)(buf[4] | (buf[5] << 8));
+	laser_data->adc = (uint16_t)(buf[6] | (buf[7] << 8));
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
@@ -243,4 +292,18 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart5, usart5_dma_buff,sizeof(usart5_dma_buff));
 		__HAL_DMA_DISABLE_IT(huart5.hdmarx, DMA_IT_HT);
 	}
+}
+
+//中断
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+	uint8_t Recv[8] = {0};
+	uint32_t ID = CAN_Receive_DataFrame(hcan, Recv);
+	if (hcan->Instance == CAN2)
+  {
+    if (ID == 0x610)
+    {
+      CAN_Laser_ReceiveHandler(&DT_35_Len, Recv);
+    }
+  }
 }

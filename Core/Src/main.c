@@ -105,6 +105,12 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 	MX_USB_DEVICE_Init();
+	CanFilter_Init(&hcan1);
+	CanFilter_Init(&hcan2);
+	HAL_CAN_Start(&hcan1); 
+	HAL_CAN_Start(&hcan2);
+	HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING);
+	HAL_CAN_ActivateNotification(&hcan2,CAN_IT_RX_FIFO1_MSG_PENDING);
 	Task_Init();
   /* USER CODE END 2 */
 
