@@ -43,6 +43,7 @@ typedef enum{
     STOP,
     REMOTE,
     AUTO,
+		STRETCH
 }ChassisMode;
 
 #pragma pack(1)

@@ -192,7 +192,7 @@ void Uart_Tx(void *pvParameters)
 			
 			steeringWheelArray[1].expectDirection = 135.0f;
 			steeringWheelArray[2].expectDirection = 135.0f;//向右
-			Mode = AUTO;
+			Mode = STRETCH;
 			expect_len = 500;
 			vTaskSuspend(task_handle);
 		}
@@ -204,7 +204,7 @@ void Uart_Tx(void *pvParameters)
 			
 			steeringWheelArray[1].expectDirection = 135.0f;
 			steeringWheelArray[2].expectDirection = 135.0f;//向右
-			Mode = AUTO;
+			Mode = STRETCH;
 			expect_len = 220;
 			vTaskSuspend(task_handle);
 		}
@@ -230,7 +230,7 @@ void Uart_Tx(void *pvParameters)
 			wheelArray[3].pos.y =  0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f;
 		}
 		
-		if(Mode == AUTO)
+		if(Mode == STRETCH)
 		{
 			PID_Control2(DT_35_Len.spi2, expect_len, &One_Four_PID);
 			PID_Control2(DT_35_Len.spi2, expect_len, &Two_Three_PID);
@@ -239,6 +239,11 @@ void Uart_Tx(void *pvParameters)
 			
 			steeringWheelArray[1].expextVelocity = Two_Three_PID.pid_out;
 			steeringWheelArray[2].expextVelocity = Two_Three_PID.pid_out;
+		}
+		
+		if(Mode == AUTO)
+		{
+			
 		}
 		
 		vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(20));
