@@ -47,10 +47,10 @@ void Task_Init(void)
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart5, usart5_dma_buff, sizeof(usart5_dma_buff));
 		__HAL_DMA_DISABLE_IT(huart5.hdmarx, DMA_IT_HT);
 	
-    wheelArray[0].pos.x =  0.325f;
+    wheelArray[0].pos.x =  0.305;
     wheelArray[0].pos.y =  0.325f; 
     wheelArray[0].pos.z =  - PI / 4.0f;
-    wheelArray[1].pos.x =  0.325f;
+    wheelArray[1].pos.x =  0.305;
     wheelArray[1].pos.y =  -0.325f;
     wheelArray[1].pos.z =  - PI / 4.0f;
     wheelArray[2].pos.x =  -0.325f;
@@ -140,7 +140,7 @@ void Remote_Analysis_Task(void *pvParameters)
 	}
 }
 
-float expect_len = 217.0f;
+float expect_len = 355.0f;
 PID2  One_Four_PID, Two_Three_PID;
 Pack_TransRemote_t pack_t[2];
 void Uart_Tx(void *pvParameters)
@@ -193,7 +193,7 @@ void Uart_Tx(void *pvParameters)
 			steeringWheelArray[1].expectDirection = 135.0f;
 			steeringWheelArray[2].expectDirection = 135.0f;//向右
 			Mode = STRETCH;
-			expect_len = 500;
+			expect_len = 710;
 			vTaskSuspend(task_handle);
 		}
 		
@@ -205,7 +205,7 @@ void Uart_Tx(void *pvParameters)
 			steeringWheelArray[1].expectDirection = 135.0f;
 			steeringWheelArray[2].expectDirection = 135.0f;//向右
 			Mode = STRETCH;
-			expect_len = 220;
+			expect_len = 355;
 			vTaskSuspend(task_handle);
 		}
 		
@@ -217,17 +217,17 @@ void Uart_Tx(void *pvParameters)
 		
 		if(Mode == REMOTE)
 		{
-			wheelArray[0].pos.x =  0.325f;
-			wheelArray[0].pos.y =  0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f;
+			wheelArray[0].pos.x =  0.305;
+			wheelArray[0].pos.y =  0.325f + (DT_35_Len.spi2 - 355.0f) / 1000.0f;
 			
-			wheelArray[1].pos.x =  0.325f;
-			wheelArray[1].pos.y =  -(0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f);
+			wheelArray[1].pos.x =  0.305;
+			wheelArray[1].pos.y =  -(0.325f + (DT_35_Len.spi2 - 355.0f) / 1000.0f);
 			
 			wheelArray[2].pos.x =  -0.325f;
-			wheelArray[2].pos.y =  -(0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f);
+			wheelArray[2].pos.y =  -(0.325f + (DT_35_Len.spi2 - 355.0f) / 1000.0f);
 
 			wheelArray[3].pos.x =  -0.325f;
-			wheelArray[3].pos.y =  0.325f + (DT_35_Len.spi2 - 217.0f) / 1000.0f;
+			wheelArray[3].pos.y =  0.325f + (DT_35_Len.spi2 - 355.0f) / 1000.0f;
 		}
 		
 		if(Mode == STRETCH)
