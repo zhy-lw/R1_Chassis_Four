@@ -168,7 +168,7 @@ void SendDataPackTask(void *param)
                     send_ack_blocks[i].size = req.size;
                     send_ack_blocks[i].retry_cnt = req.max_retry_cnt;
                     send_ack_blocks[i].timeout_ms = req.timeout_ms;
-                    send_ack_blocks[i].send_time_ms = Comm_GetTickMS()/1000;
+                    send_ack_blocks[i].send_time_ms = Comm_GetTickMS();
                     break;
                 }
             }
@@ -305,7 +305,7 @@ void ACKTimeoutCheckTask(void *param)
     while (1)
     {
         xSemaphoreTake(send_ack_blocks_mutex, portMAX_DELAY);
-        int64_t cut_time=Comm_GetTickMS()/ 1000;
+        int64_t cut_time=Comm_GetTickMS();
         for (int i = 0; i < 8; i++)
         {
             if (send_ack_blocks[i].is_using)

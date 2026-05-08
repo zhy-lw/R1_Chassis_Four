@@ -1,5 +1,5 @@
 CompileFlags:
-  CompilationDatabase: d:\Keil_Project_Trae_CN\Robocon2026_Chassis\MDK-ARM\out\chassis\chassis
+  CompilationDatabase: d:\Keil_Project_Trae_CN\R1_Chassis\R1_Chassis\MDK-ARM\out\chassis\chassis
   Add:
     - "-D_ILP32=1\r\n"
     - "-D_USE_STATIC_INLINE=1\r\n"

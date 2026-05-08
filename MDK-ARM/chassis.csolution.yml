@@ -10,5 +10,9 @@ solution:
         - set:
           images:
             - project-context: chassis
+          debugger:
+            name: J-Link Server
+            clock: 4000000
+            protocol: swd
   projects:
     - project: chassis.cproject.yml

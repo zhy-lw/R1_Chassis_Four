@@ -2274,6 +2274,16 @@
               <FileType>5</FileType>
               <FilePath>..\Chassis\Action_Config.h</FilePath>
             </File>
+            <File>
+              <FileName>Navigation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Navigation.c</FilePath>
+            </File>
+            <File>
+              <FileName>Navigation.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Navigation.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

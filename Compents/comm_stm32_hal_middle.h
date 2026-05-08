@@ -34,6 +34,7 @@ typedef struct {
     SemaphoreHandle_t rx_semaphore;                    // 接收信号量（有新数据到达时 give）
     TaskHandle_t tx_wait_task;                         // 当前等待发送完成通知的任务（用于 task notify）
     volatile uint8_t tx_busy;                          // 发送忙标志（与 tx_wait_task 配合）
+    uint32_t tx_error_count;                           // 发送错误计数
 } CommHandle_t;
 
 /*

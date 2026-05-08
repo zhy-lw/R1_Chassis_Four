@@ -42,6 +42,9 @@ struct Chassis_t{
     Vector3D exp_vel;           //底盘期望最终速度
     Vector3D exp_acc;           //底盘期望加速度
     
+		//世界雷达坐标
+		Vector3D cur_pos;
+		
     //控制周期
     uint32_t update_dt_ms;      
 

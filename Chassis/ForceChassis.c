@@ -11,10 +11,10 @@ void ChassisCalculateProcess(void *param)
     Chassis_t *chassis = (Chassis_t *)param;
     int wheel_num=chassis->wheel_num;
 
-    float force[8];
-    float cur_velocity[8];
-    float robot_force[3];
-    float robot_cur_vel[3];
+    float force[8] = {0};
+    float cur_velocity[8] = {0};
+    float robot_force[3] = {0};
+    float robot_cur_vel[3] = {0};
 
     //底盘当前速度向量
     arm_matrix_instance_f32 wheel_vel_mat, wheel_cur_vel_mat,robot_vel_mat, wheel_force_mat, robot_force_mat, robot_acc_mat,robot_cur_vel_mat;

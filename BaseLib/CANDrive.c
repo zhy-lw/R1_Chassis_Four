@@ -3,10 +3,7 @@
 #ifdef HAL_CAN_MODULE_ENABLED
 
 uint8_t CAN1_buff[8];
-
-#if defined(CAN2)
 uint8_t CAN2_buff[8];
-#endif
 
 void CanFilter_Init(CAN_HandleTypeDef *hcan) {
     CAN_FilterTypeDef canfilter;
@@ -30,16 +27,13 @@ void CanFilter_Init(CAN_HandleTypeDef *hcan) {
         /*! CAN_FilterFIFO0 */
         canfilter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
     }
-
-#if defined(CAN2)
-    if (hcan->Instance == CAN2) {
+    else if (hcan->Instance == CAN2) {
         /*! 从can的过滤器编号 */
         canfilter.FilterBank = 14;
 
         /*! CAN_FilterFIFO1 */
         canfilter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
     }
-#endif
 
     /*! 激活过滤器 */
     canfilter.FilterActivation = ENABLE;
