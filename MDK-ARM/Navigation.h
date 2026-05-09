@@ -34,6 +34,7 @@ typedef struct {
 } PurePursuitController;
 
 void PurePursuit_Init(PurePursuitController *controller);
-void PurePursuit_SetTarget(PurePursuitController *controller, float target_x, float target_y, float target_theta);
+void PurePursuit_SetTarget(PurePursuitController *controller, float target_x, float target_y);
+void PurePursuit_Update(PurePursuitController* controller);
 
 #endif

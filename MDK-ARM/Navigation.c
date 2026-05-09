@@ -19,11 +19,10 @@ void PurePursuit_Init(PurePursuitController *controller)
     controller->is_running = false;
 }
 
-void PurePursuit_SetTarget(PurePursuitController *controller, float target_x, float target_y, float target_theta)
+void PurePursuit_SetTarget(PurePursuitController *controller, float target_x, float target_y)
 {
     controller->target_x = target_x;
     controller->target_y = target_y;
-    controller->target_theta = target_theta;
     controller->is_running = true;
 }
 
